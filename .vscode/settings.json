@@ -19,5 +19,8 @@
   },
   "[typescript]": {
     "editor.formatOnSave": true
-  }
+  },
+  "cSpell.words": [
+    "deref"
+  ]
 }

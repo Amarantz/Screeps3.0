@@ -13,18 +13,20 @@ module.exports = {
     'comma-dangle': ['error', 'never'],
     'import/no-unresolved': ['off'],
     'linebreak-style': 'off',
-    'max-len': ['error', { 'code': 120 }],
     'no-console': 'off',
     'no-param-reassign': ['error', { 'props': false }],
     'no-plusplus': 'off',
-    'object-curly-newline': ['error', { 'multiline': true }],
     'padded-blocks': ['error', {
       'blocks': 'never',
-      'classes': 'always',
+      'classes': 'never',
       'switches': 'never'
     }],
     '@typescript-eslint/explicit-function-return-type': 'off',
-    '@typescript-eslint/no-use-before-define': 'off'
+    '@typescript-eslint/no-use-before-define': 'off',
+    '@typescript-eslint/no-unsafe-assignment': 'off',
+    '@typescript-eslint/no-unsafe-member-access': 'warn',
+    '@typescript-eslint/explicit-module-boundary-types': 'warn',
+    '@typescript-eslint/no-explicit-any': 'warn'
   },
   overrides: [
     {

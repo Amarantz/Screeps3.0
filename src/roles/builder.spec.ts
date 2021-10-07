@@ -1,5 +1,5 @@
 import { mockInstanceOf } from 'screeps-jest';
-import roleBuilder, { Builder } from './builder';
+import roleBuilder from './builder';
 
 const cs1 = mockInstanceOf<ConstructionSite>({ id: 'cs1' });
 const cs2 = mockInstanceOf<ConstructionSite>({ id: 'cs2' });

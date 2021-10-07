@@ -9,7 +9,8 @@ module.exports = {
   coveragePathIgnorePatterns: [
     '/dist/',
     '\\.d\\.ts$',
-    'src/utils/ErrorMapper.ts'
+    'src/utils/ErrorMapper.ts',
+    'src/profiler/decorator'
   ],
 
   // An array of directory names to be searched recursively up from the requiring module's location
@@ -30,5 +31,4 @@ module.exports = {
     '!**/node_modules/**',
     '!**/dist/**'
   ]
-
 };
