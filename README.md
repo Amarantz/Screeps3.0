@@ -1,3 +1,11 @@
+# Goals to that I need to work on
+[] assigning harvesters to source
+[] figure creating body parts based on room energy
+[] starting drop mining
+[] start haulers
+[] create containers after (rc3)
+[] start creating extention by script
+
 # Screeps Typescript + Jest Starter
 
 ![Tests](https://github.com/eduter/screeps-typescript-jest-starter/workflows/Tests/badge.svg)

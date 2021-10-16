@@ -2,7 +2,6 @@
 import { SourceMapConsumer } from 'source-map';
 
 export default class ErrorMapper {
-
   // Cache consumer
   private static _consumer?: SourceMapConsumer;
 
@@ -66,18 +65,21 @@ export default class ErrorMapper {
     return outStack;
   }
 
-  public static wrapLoop(loop: () => void): () => void {
+  public static wrapLoop(loop: () => void, label?: string): () => void {
     return () => {
       try {
         loop();
       } catch (e) {
         if (e instanceof Error) {
+          let fullMessage:string;
           if ('sim' in Game.rooms) {
             const message = 'Source maps don\'t work in the simulator - displaying original error';
-            console.log(`<span style='color:red'>${message}<br>${_.escape(e.stack)}</span>`);
+            fullMessage = `<span style='color:red'>${message}<br>${_.escape(e.stack)}</span>`
           } else {
-            console.log(`<span style='color:red'>${_.escape(this.sourceMappedStackTrace(e))}</span>`);
+            fullMessage = `<span style='color:red'>${_.escape(this.sourceMappedStackTrace(e))}</span>`
           }
+          console.log(fullMessage);
+          Game.notify(fullMessage);
         } else {
           // can't handle it
           throw e;
@@ -85,5 +87,4 @@ export default class ErrorMapper {
       }
     };
   }
-
 }
