@@ -8,10 +8,16 @@ declare global {
     }
 }
 
-export default function() {
+export default function () {
     let harvesters = 0;
     let upgraders = 0;
     let builders = 0;
+
+    if (Object.values(Game.creeps).filter(creep => creep.memory.role === 'harvester' && !creep.memory.t).length) {
+        const room = Game.rooms['E15S38'];
+        const sources = room.find(FIND_SOURCES);
+        sources.forEach(source => roleHarvester.assign(source));
+    }
 
     Object.values(Game.creeps).forEach(creep => {
         if (creep.memory.role === 'harvester') {
@@ -29,14 +35,14 @@ export default function() {
     });
 
     if (harvesters < 2 && Game.spawns['Spawn1'].spawning == null) {
-        Game.spawns['Spawn1'].spawnCreep([WORK,WORK,MOVE,CARRY], `harvester_${Game.time}`, { memory: { role: 'harvester'} as CreepMemory });
+        Game.spawns['Spawn1'].spawnCreep([WORK, WORK, MOVE, CARRY], `harvester_${Game.time}`, { memory: { role: 'harvester' } as CreepMemory });
     }
 
     if (upgraders < 2 && Game.spawns['Spawn1'].spawning == null) {
-        Game.spawns['Spawn1'].spawnCreep([WORK,WORK,MOVE,CARRY], `upgrader_${Game.time}`, { memory: { role: 'upgrader'} as CreepMemory });
+        Game.spawns['Spawn1'].spawnCreep([WORK, WORK, MOVE, CARRY], `upgrader_${Game.time}`, { memory: { role: 'upgrader' } as CreepMemory });
     }
     if (builders < 2 && Game.spawns['Spawn1'].spawning == null && Game.spawns['Spawn1'].room.find(FIND_CONSTRUCTION_SITES).length > 0) {
-        Game.spawns['Spawn1'].spawnCreep([WORK,WORK,MOVE,CARRY], `builder_${Game.time}`, { memory: { role: 'builder'} as BuilderMemory });
+        Game.spawns['Spawn1'].spawnCreep([WORK, WORK, MOVE, CARRY], `builder_${Game.time}`, { memory: { role: 'builder' } as BuilderMemory });
     }
 
     // Automatically delete memory of missing creeps
