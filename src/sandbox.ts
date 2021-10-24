@@ -1,5 +1,7 @@
+import { creepSpawn, roleOptions } from "creepspawn";
 import roleBuilder from "roles/builder";
 import roleHarvester from "roles/harvester";
+import roleHauler from "roles/hauler";
 import roleUpgrader from "roles/upgrader";
 
 declare global {
@@ -12,6 +14,7 @@ export default function () {
     let harvesters = 0;
     let upgraders = 0;
     let builders = 0;
+    let hauler = 0;
 
     if (Object.values(Game.creeps).filter(creep => creep.memory.role === 'harvester' && !creep.memory.t).length) {
         const room = Game.rooms['E15S38'];
@@ -32,17 +35,26 @@ export default function () {
             builders = builders + 1;
             roleBuilder.run(creep as Builder);
         }
+        if (creep.memory.role === 'hauler') {
+            hauler = hauler + 1;
+            roleHauler.run(creep);
+        }
     });
 
-    if (harvesters < 2 && Game.spawns['Spawn1'].spawning == null) {
-        Game.spawns['Spawn1'].spawnCreep([WORK, WORK, MOVE, CARRY], `harvester_${Game.time}`, { memory: { role: 'harvester' } as CreepMemory });
+    const spawn =  Game.spawns['Spawn1'];
+    if (harvesters < 2 && spawn.spawning == null) {
+        creepSpawn(spawn, roleOptions.harvester)
     }
 
-    if (upgraders < 2 && Game.spawns['Spawn1'].spawning == null) {
-        Game.spawns['Spawn1'].spawnCreep([WORK, WORK, MOVE, CARRY], `upgrader_${Game.time}`, { memory: { role: 'upgrader' } as CreepMemory });
+    if (hauler < 2 && spawn.spawning == null) {
+        creepSpawn(spawn, roleOptions.hauler)
     }
-    if (builders < 2 && Game.spawns['Spawn1'].spawning == null && Game.spawns['Spawn1'].room.find(FIND_CONSTRUCTION_SITES).length > 0) {
-        Game.spawns['Spawn1'].spawnCreep([WORK, WORK, MOVE, CARRY], `builder_${Game.time}`, { memory: { role: 'builder' } as BuilderMemory });
+
+    if (upgraders < 2 && spawn.spawning == null) {
+        creepSpawn(spawn, roleOptions.upgrader)
+    }
+    if (builders < 2 && spawn.spawning == null && spawn.room.find(FIND_CONSTRUCTION_SITES).length > 0) {
+        creepSpawn(spawn, roleOptions.builder)
     }
 
     // Automatically delete memory of missing creeps
