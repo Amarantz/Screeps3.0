@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unsafe-return */
 import { creepSpawn, roleOptions } from "creepspawn";
 import roleBuilder from "roles/builder";
+import { roleFiller } from "roles/fillter";
 import roleHarvester from "roles/harvester";
 import roleHauler from "roles/hauler";
 import roleUpgrader from "roles/upgrader";
@@ -18,6 +19,7 @@ export default function () {
     let upgraders = 0;
     let builders = 0;
     let hauler = 0;
+    let filler = 0;
 
     if (Object.values(Game.creeps).filter(creep => creep.memory.role === 'harvester' && !creep.memory.t).length) {
         const room = Game.rooms['E15S38'];
@@ -41,6 +43,11 @@ export default function () {
         if (creep.memory.role === 'hauler') {
             hauler = hauler + 1;
             roleHauler.run(creep);
+        }
+
+        if (creep.memory.role === 'filler') {
+            filler = filler + 1;
+            roleFiller.run(creep);
         }
     });
 
@@ -66,8 +73,13 @@ export default function () {
     if ( harvesters > 1 && upgraders < 2 && spawn.spawning == null) {
         creepSpawn(spawn, roleOptions.upgrader)
     }
+
     if ( harvesters > 1 && builders < 2 && spawn.spawning == null && spawn.room.find(FIND_CONSTRUCTION_SITES).length > 0) {
         creepSpawn(spawn, roleOptions.builder)
+    }
+
+    if(Game.rooms['E15S38'].storage && filler < 2 && spawn.spawning === null) {
+        creepSpawn(spawn, roleOptions.filler);
     }
 
     Object.entries(Game.rooms).forEach(([, room]) => {

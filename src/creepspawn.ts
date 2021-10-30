@@ -60,6 +60,14 @@ export const roleOptions: {[key: string]: creepSetupOptions} = {
             role: 'hauler'
         }
     },
+    filler: {
+        body: [MOVE,CARRY],
+        maxRepeat: 5,
+        namePrefix: 'filler',
+        memory: {
+            role: 'filler'
+        }
+    },
     builder: {
         body: [WORK,MOVE,CARRY],
         maxRepeat: 5,
