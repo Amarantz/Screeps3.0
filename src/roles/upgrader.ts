@@ -23,14 +23,23 @@ interface Upgrader extends Creep {
 
       if (creep.memory.upgrading) {
         if (creep.room.controller) {
-          if (creep.upgradeController(creep.room.controller) === ERR_NOT_IN_RANGE) {
-            if (creep.fatigue === 0) creep.moveTo(creep.room.controller, { visualizePathStyle: { stroke: '#ffffff' } });
+          if(creep.pos.getRangeTo(creep.room.controller) > 2) {
+            creep.moveTo(creep.room.controller);
+          } else {
+            creep.upgradeController(creep.room.controller);
           }
         }
       } else {
+        if (!creep.room.storage || creep.room.storage.store.getFreeCapacity() != creep.room.storage.store.getCapacity()) {
         const target = creep.pos.findClosestByRange(FIND_DROPPED_RESOURCES, { filter: r => r.resourceType === RESOURCE_ENERGY});
         if (target && creep.pickup(target) === ERR_NOT_IN_RANGE) {
           if (creep.fatigue === 0) creep.moveTo(target, { visualizePathStyle: { stroke: '#ffaa00' } });
+        }
+        }
+        if (creep.room.storage && creep.room.storage.store.getUsedCapacity()) {
+          if(creep.withdraw(creep.room.storage, RESOURCE_ENERGY) != ERR_NOT_IN_RANGE) {
+            creep.moveTo(creep.room.storage);
+          }
         }
       }
     }

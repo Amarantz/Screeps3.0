@@ -54,7 +54,7 @@ export const roleOptions: {[key: string]: creepSetupOptions} = {
     },
     hauler: {
         body: [MOVE,CARRY],
-        maxRepeat: 10,
+        maxRepeat: 5,
         namePrefix: 'hauler',
         memory: {
             role: 'hauler'

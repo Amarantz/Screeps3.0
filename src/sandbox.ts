@@ -1,8 +1,11 @@
+/* eslint-disable @typescript-eslint/no-unsafe-return */
 import { creepSpawn, roleOptions } from "creepspawn";
 import roleBuilder from "roles/builder";
 import roleHarvester from "roles/harvester";
 import roleHauler from "roles/hauler";
 import roleUpgrader from "roles/upgrader";
+import { runTower } from "tower";
+import { roomLink } from "utils/Logger";
 
 declare global {
     interface CreepMemory {
@@ -41,21 +44,36 @@ export default function () {
         }
     });
 
-    const spawn =  Game.spawns['Spawn1'];
+    const spawn = Game.spawns['Spawn1'];
+    if (!harvesters && !hauler) {
+        const spec = { ...roleOptions.harvester };
+        spec.maxRepeat = 1;
+        creepSpawn(spawn, spec)
+    }
+    if (harvesters > 1 && hauler === 0) {
+        const spec = { ...roleOptions.hauler };
+        spec.maxRepeat = 1;
+        creepSpawn(spawn, spec)
+    }
     if (harvesters < 2 && spawn.spawning == null) {
         creepSpawn(spawn, roleOptions.harvester)
     }
 
-    if (hauler < 2 && spawn.spawning == null) {
+    if (harvesters > 1 && hauler < 2 && spawn.spawning == null) {
         creepSpawn(spawn, roleOptions.hauler)
     }
 
-    if (upgraders < 2 && spawn.spawning == null) {
+    if ( harvesters > 1 && upgraders < 2 && spawn.spawning == null) {
         creepSpawn(spawn, roleOptions.upgrader)
     }
-    if (builders < 2 && spawn.spawning == null && spawn.room.find(FIND_CONSTRUCTION_SITES).length > 0) {
+    if ( harvesters > 1 && builders < 2 && spawn.spawning == null && spawn.room.find(FIND_CONSTRUCTION_SITES).length > 0) {
         creepSpawn(spawn, roleOptions.builder)
     }
+
+    Object.entries(Game.rooms).forEach(([, room]) => {
+        const towers = room.find<StructureTower>(FIND_MY_STRUCTURES, { filter: s => s.structureType === STRUCTURE_TOWER });
+        towers.forEach(t => runTower(t));
+    });
 
     // Automatically delete memory of missing creeps
     Object.keys(Memory.creeps)

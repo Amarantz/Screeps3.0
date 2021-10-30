@@ -6,9 +6,16 @@ declare global {
 const roleHauler = {
     run(creep: Creep): void {
         if (creep.store.getUsedCapacity(RESOURCE_ENERGY) > 0) {
-            const fillableTargets = creep.room.find(FIND_MY_STRUCTURES, { filter: s => isToBeFilled(s) });
-            if (creep.transfer(fillableTargets[0], RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
-                creep.moveTo(fillableTargets[0]);
+            if (!creep.room.storage) {
+                const fillableTargets = creep.pos.findClosestByRange(FIND_MY_STRUCTURES, { filter: s => isToBeFilled(s) });
+                if (fillableTargets && creep.transfer(fillableTargets, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
+                    creep.moveTo(fillableTargets);
+                }
+            }
+            if(creep.room.storage) {
+                if(creep.transfer(creep.room.storage, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
+                    creep.moveTo(creep.room.storage);
+                }
             }
         } else {
             if (!creep.memory.t) {
