@@ -1,4 +1,5 @@
 import { HiveOS } from "HiveOS";
+import ErrorMapper from "utils/ErrorMapper";
 import { BuyPixleProcess } from "./standard/buyPixelProcess";
 import { TestProcess } from "./test/test";
 
@@ -33,11 +34,11 @@ export function isProcedural(arg: any): arg is Procedural {
 }
 
 export function processLog(sender: Process, message: string): void {
-    // HiveOS.init.addProcessLog({
-    //     processId: sender.processId,
-    //     processType: sender.constructor.name,
-    //     message: message
-    // });
+    HiveOS.init.addProcessLog({
+        processId: sender.processId,
+        processType: sender.constructor.name,
+        message: message
+    });
 }
 
 class ProcessTypes {
@@ -45,3 +46,16 @@ class ProcessTypes {
     "BuyPixleProcess" = (state: ProcessState) => BuyPixleProcess.decode(state as unknown as BuyPixleProcessState)
 }
 
+
+export function decodeProcessFrom(state: ProcessState): Process | undefined {
+    let decoded: Process | undefined;
+    ErrorMapper.wrapLoop(() => {
+        const maker = (new ProcessTypes())[state.t];
+        if(!maker) {
+            decoded = undefined;
+            return;
+        }
+        decoded = maker(state);
+    }, `decodedProcessFrom(), process type: ${state.t}`);
+    return decoded;
+}
