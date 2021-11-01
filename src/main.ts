@@ -1,15 +1,11 @@
 /* eslint-disable @typescript-eslint/no-unsafe-call */
 import sandbox from "sandbox";
 import ErrorMapper from "utils/ErrorMapper";
-import * as profiler from 'screeps-profiler';
+import profiler from 'screeps-profiler';
 import { USE_PROFILER } from "settings";
 import { HiveOS } from "HiveOS";
 import { Initialize } from "initialize";
-declare global {
-    interface GameObjectInfo<GameObject> {
-        update(obj: GameObject): void
-    }
-}
+
 
 Initialize.init();
 function main(): void {

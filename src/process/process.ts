@@ -33,11 +33,11 @@ export function isProcedural(arg: any): arg is Procedural {
 }
 
 export function processLog(sender: Process, message: string): void {
-    HiveOS.init.addProcessLog({
-        processId: sender.processId,
-        processType: sender.constructor.name,
-        message: message
-    });
+    // HiveOS.init.addProcessLog({
+    //     processId: sender.processId,
+    //     processType: sender.constructor.name,
+    //     message: message
+    // });
 }
 
 class ProcessTypes {
