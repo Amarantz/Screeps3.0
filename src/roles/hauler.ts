@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-unsafe-call */
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
 import { isToBeFilled } from "./harvester"
 
 declare global {
@@ -45,7 +47,7 @@ const roleHauler = {
                         creep.moveTo(target);
                     }
                 }
-                if(!target) {
+                if(!target || target instanceof StructureContainer && target.store && target.store.getUsedCapacity() === 0) {
                     delete creep.memory.t;
                 }
             }
