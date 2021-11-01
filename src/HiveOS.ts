@@ -1,11 +1,27 @@
 /* eslint-disable @typescript-eslint/no-empty-interface */
+import { memoryUsage } from "process";
 import { profile } from "profiler/decorator";
 
 declare global {
     interface HiveOSMemory {
+        p: ProcessMemory[];
+        config: {
+            shouldReadMemory?: boolean;
+        }
     }
     interface Memory {
         os: HiveOSMemory
+    }
+    interface ProcessMemory {
+        /** running */
+        r: boolean;
+
+        /** process state */
+        s: ProcessState
+    }
+    interface InternalProcessInfo {
+        running: boolean,
+        process: Process,
     }
 }
 
@@ -15,7 +31,7 @@ export class HiveOS  {
         return new HiveOS();
     })();
     private setupDone = false;
-
+    private processes = new Map<ProcessId, InternalProcessInfo>();
     constructor() {
         // empty
     }
@@ -33,7 +49,20 @@ export class HiveOS  {
 
     setupMemory(): void {
         if(!Memory.os) {
-            Memory.os = {}
+            Memory.os = {
+                p: [],
+                config: {},
+            }
+        }
+        if(!Memory.os.p) {
+            Memory.os.p = [];
+        }
+        if(!Memory.os.config) {
+            Memory.os.config = {};
         }
     }
+
+    // addProcessLog(log: ProcessLog): void {
+    //     // this.runtimeMemory.processLogs.push(log);
+    // }
 }

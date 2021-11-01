@@ -1,11 +1,11 @@
 declare global {
     interface state {
-        /** name of process  */
-        n: string
+        /** type of process  */
+        t: string
     }
 
     interface Stateful {
-        encode(): void;
+        encode(): state;
     }
 }
 
