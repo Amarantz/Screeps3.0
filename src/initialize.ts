@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/restrict-template-expressions */
+import { standardInput } from 'os/infrastructure/standardInput';
 import { anyColoredText, leveled_colored_text } from 'utils/Logger';
 declare global {
     interface Memory {
@@ -10,6 +11,9 @@ declare global {
         roomInfo: {
             [key: string]: Record<string, unknown>
         }
+    }
+    interface Game {
+        io: (rawCommand: string) => string;
     }
 }
 
@@ -34,6 +38,8 @@ export class Initialize {
         if (Memory.stats.cpu.usage.length > 20) {
             Memory.stats.cpu.usage = []
         }
+
+        Game.io = standardInput;
     }
 
     static run(): void {

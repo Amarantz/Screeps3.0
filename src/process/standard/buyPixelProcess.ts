@@ -8,10 +8,14 @@ declare global {
 
 @profile
 export class BuyPixleProcess implements Process, Procedural {
+    taskIdentifier: string;
+
     constructor(
         readonly launchTime: number,
         readonly processId: ProcessId,
-    ) { }
+    ) {
+        this.taskIdentifier = this.constructor.name;
+     }
 
     encode(): BuyPixleProcessState {
         return {

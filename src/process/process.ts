@@ -13,9 +13,10 @@ declare global {
         /** process Id */
         i: number
     }
-    interface Process extends Stateful {
-        launchTime: number;
-        processId: ProcessId;
+    interface Process extends Stateful, Procedural {
+        readonly launchTime: number;
+        readonly processId: ProcessId;
+        readonly taskIdentifier: string;
 
         encode(): ProcessState;
         processSortDescription?(): string;
@@ -26,7 +27,7 @@ declare global {
         runOnTick(): void;
     }
 
-    type ProcessTypeIdentifier = keyof ProcessTypes
+    type ProcessTypeIdentifier = keyof ProcessTypes;
 }
 
 export function isProcedural(arg: any): arg is Procedural {
@@ -52,7 +53,6 @@ export function decodeProcessFrom(state: ProcessState): Process | undefined {
     ErrorMapper.wrapLoop(() => {
         const maker = (new ProcessTypes())[state.t];
         if(!maker) {
-            decoded = undefined;
             return;
         }
         decoded = maker(state);

@@ -4,28 +4,37 @@ import { decodeProcessFrom, isProcedural } from "process/process";
 import { profile } from "profiler/decorator";
 import ErrorMapper from "utils/ErrorMapper";
 import { Result } from "utils/Result";
+import { ProcessStore } from "./ProcessStore";
 
 declare global {
     interface HiveOSMemory {
         p: ProcessMemory[];
         config: {
             shouldReadMemory?: boolean;
-        }
+        },
+        logger: LoggerMemory
+    }
+    interface LoggerMemory {
+        filteringProcessIds: ProcessId[],
     }
     interface Memory {
         os: HiveOSMemory
     }
     interface ProcessMemory {
         /** running */
-        r: boolean;
+        readonly r: boolean;
 
         /** process state */
-        s: ProcessState
+        readonly s: ProcessState
+        readonly childProcessIds: ProcessId[];
+        readonly executionPriority: number;
     }
 
     interface InternalProcessInfo {
         running: boolean,
-        process: Process,
+        readonly process: Process,
+        readonly childProcessIds: ProcessId[],
+        readonly executionPriority: number;
     }
 
     interface RuntimeMemory {
@@ -53,7 +62,7 @@ export class HiveOS {
     })();
 
     private setupDone = false;
-    private readonly processes = new Map<ProcessId, InternalProcessInfo>();
+    private readonly processStore = new ProcessStore();
     private readonly processIdsToKill: ProcessId[] = [];
     private runtimeMemory: RuntimeMemory = { processLogs: [] };
     private processIndex: number = 0;
@@ -62,24 +71,20 @@ export class HiveOS {
         // empty
     }
 
-    public AddProcess<T extends Process>(maker: (processId: ProcessId) => T): T {
+    public addProcess<T extends Process>(parentProcessId: ProcessId | undefined, maker: (processId: ProcessId) => T): T {
         const processId = this.getNewProcessId();
         const process = maker(processId);
-        const processInfo: InternalProcessInfo = {
-            process,
-            running: true,
-        }
-        this.processes.set(processId, processInfo);
+        this.processStore.add(process, parentProcessId);
         console.log(`Launch process ${process.constructor.name}, ID: ${processId}`);
         return process;
     }
 
     public processOf(processId: ProcessId): Process | undefined {
-        return this.processes.get(processId)?.process ?? undefined;
+        return this.processStore.get(processId)?.process ?? undefined;
     }
 
     public suspendProcess(processId: ProcessId): Result<string, string> {
-        const processInfo = this.processes.get(processId);
+        const processInfo = this.processStore.get(processId);
         if (!processInfo) {
             return Result.Failed(`No Process with Id ${processId}`);
         }
@@ -88,11 +93,11 @@ export class HiveOS {
         }
 
         processInfo.running = false;
-        return Result.Successed(processInfo.process.constructor.name);
+        return Result.Succeseeded(processInfo.process.constructor.name);
     }
 
     public resumeProcess(processId: ProcessId): Result<string, string> {
-        const processInfo = this.processes.get(processId);
+        const processInfo = this.processStore.get(processId);
         if (!processInfo) {
             return Result.Failed(`No Process with Id ${processId}`);
         }
@@ -101,7 +106,7 @@ export class HiveOS {
         }
 
         processInfo.running = false;
-        return Result.Successed(processInfo.process.constructor.name);
+        return Result.Succeseeded(processInfo.process.constructor.name);
     }
 
     public killProcess(processId: ProcessId): Result<string, string> {
@@ -112,7 +117,7 @@ export class HiveOS {
         if (!this.processIdsToKill.includes(processId)) {
             this.processIdsToKill.push(processId)
         }
-        return Result.Successed(process.constructor.name);
+        return Result.Succeseeded(process.constructor.name);
 
     }
 
@@ -160,6 +165,9 @@ export class HiveOS {
             Memory.os = {
                 p: [],
                 config: {},
+                logger: {
+                    filteringProcessIds: []
+                }
             }
         }
         if (!Memory.os.p) {
@@ -168,10 +176,16 @@ export class HiveOS {
         if (!Memory.os.config) {
             Memory.os.config = {};
         }
+
+        if(!Memory.os.logger) {
+            Memory.os.logger = {
+                filteringProcessIds: []
+            }
+        }
     }
 
     processInfoOf(processId: ProcessId): ProcessInfo | undefined {
-        const processInfo = this.processes.get(processId);
+        const processInfo = this.processStore.get(processId);
         if (!processInfo) {
             return;
         }
@@ -184,7 +198,7 @@ export class HiveOS {
     }
 
     listAllProcesses(): ProcessInfo[] {
-        return Array.from(this.processes.values()).map(processInfo => {
+        return this.processStore.list().map(processInfo => {
             const info: ProcessInfo = {
                 processId: processInfo.process.processId,
                 type: processInfo.process.constructor.name,
@@ -208,29 +222,32 @@ export class HiveOS {
     }
 
     private restoreProcesses(): void {
-        this.processes.clear();
-        Memory.os.p.forEach(processStateMemory => {
+        const processInfo: InternalProcessInfo[] = Memory.os.p.flatMap(processStateMemory => {
             const process = decodeProcessFrom(processStateMemory.s);
             if (!process) {
-                this.sendOSError(`Unreconized stateful process type ${processStateMemory.s}`)
-                return;
+                this.sendOSError(`Unrecognized stateful process type ${processStateMemory.s.t}, ${processStateMemory.s.i}`);
+                return [];
             }
-            const processInfo: InternalProcessInfo = {
+            return {
                 process,
-                running: processStateMemory.r === true
+                running: processStateMemory.r === true,
+                childProcessIds: processStateMemory.childProcessIds ?? [],
+                executionPriority: processStateMemory.executionPriority ?? 0,
             }
-            this.processes.set(process.processId, processInfo)
         });
+        this.processStore.replace(processInfo);
     }
 
     private storeProcesses(): void {
         const processesMemory: ProcessMemory[] = [];
-        Array.from(this.processes.values()).forEach(processInfo => {
+        this.processStore.list().forEach(processInfo => {
             const process = processInfo.process;
             ErrorMapper.wrapLoop(() => {
                 processesMemory.push({
                     r: processInfo.running,
                     s: process.encode(),
+                    childProcessIds: processInfo.childProcessIds,
+                    executionPriority: processInfo.executionPriority,
                 });
             }, "Hivemind.storeProcesses()")();
         });
@@ -248,28 +265,48 @@ export class HiveOS {
     }
 
     private runProceduralProcesses(): void {
-        Array.from(this.processes.values()).forEach(processInfo => {
-            if (!processInfo.running) { return }
-
-            const process = processInfo.process;
-            if (isProcedural(process)) {
-                ErrorMapper.wrapLoop(() => {
-                    process.runOnTick()
-                }, `Procedural process ${process.processId} run()`)();
-            }
-        })
+       const runningProcessInfo =- this.processStore.list()
+       .filter(processInfo => this.processStore.isRunning(processInfo.process.processId))
+       .sort((a, b) => {
+           return b.executionPriority - a.executionPriority;
+       })
     }
 
     private killProcesses(): void {
-        this.processIdsToKill.forEach(processId => {
-            const processInfo = this.processes.get(processId);
-            if (!processInfo) {
-                this.sendOSError(`[Program bug] trying to kill non existent process ${processId}`);
+       if(this.processIdsToKill.length <= 0) {
+           return;
+       }
+
+       const messages: string[] = [];
+       const spaces = '                                                         ';
+       const getIndent = (indent: number): string => spaces.slice(0, indent * 2);
+       const kill = (processId: ProcessId, indent: number): void => {
+           const processInfo = this.processStore.get(processId);
+           if (!processInfo) {
+                this.sendOSError(`Trying to kill non existent process ${processId}`);
                 return;
-            }
-            console.log(`Kill process ${processInfo.process.constructor.name}, ID ${processInfo.process.processId}`);
-            this.processes.delete(processId);
-        })
-        this.processIdsToKill.splice(0, this.processIdsToKill.length);
+           }
+
+           const result = this.processStore.remove(processId);
+           if (!result) {
+               return;
+           }
+
+           const additionalInfo: string[] = [];
+           const { parentProcessId } = result;
+           if (parentProcessId) {
+               const parentProcessInfo = this.processStore.get(parentProcessId);
+               if(!parentProcessInfo) {
+
+               } else {
+                   const index = parentProcessInfo.childProcessIds.indexOf(processId);
+                   if(index < 0) {
+                        this.sendOSError(`Missing child process ${processId}, ${processInfo.process.taskIdentifier}`)
+                   } else {
+                       parentProcessInfo.childProcessIds.splice(index, 1);
+                   }
+               }
+           }
+       }
     }
 }

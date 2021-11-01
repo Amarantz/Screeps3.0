@@ -8,12 +8,13 @@ declare global {
 
 @profile
 export class TestProcess implements Process, Procedural {
+    readonly taskIdentifier: string;
     private constructor(
         readonly launchTime: number,
         readonly processId: ProcessId,
         readonly testMemory: string | undefined,
     ) {
-
+        this.taskIdentifier = this.constructor.name;
     }
     runOnTick(): void {
         // do nothing for now

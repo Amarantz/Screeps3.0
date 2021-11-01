@@ -4,16 +4,16 @@ declare global {
 
 export class ResultSucceeded<T> {
     public readonly resultType = "succeeded";
-    public constructor(readonly value: T) {}
+    public constructor(readonly value: T) { }
 }
 
 export class ResultFailed<S> {
     public readonly resultType = "failed";
-    public constructor(readonly value: S) {}
+    public constructor(readonly reason: S) { }
 }
 
 export const Result = {
-    Successed: function<T>(value: T): ResultSucceeded<T> {
+    Succeseeded: function <T>(value: T): ResultSucceeded<T> {
         return new ResultSucceeded(value);
     },
     Failed: function <T>(value: T): ResultFailed<T> {
