@@ -54,7 +54,10 @@
   },
   "dependencies": {
     "@types/screeps-profiler": "^1.2.2",
+    "rollup-plugin-commonjs": "^10.1.0",
+    "rollup-plugin-node-resolve": "^5.2.0",
     "screeps-profiler": "^2.0.1",
-    "source-map": "~0.6.1"
+    "source-map": "~0.6.1",
+    "ts-polyfill": "^3.8.2"
   }
 }

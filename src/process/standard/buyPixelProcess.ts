@@ -1,4 +1,5 @@
 import { profile } from "profiler/decorator";
+import { Enviroment } from "utils/enviroment";
 
 declare global {
     interface BuyPixleProcessState extends ProcessState {
@@ -15,7 +16,7 @@ export class BuyPixleProcess implements Process, Procedural {
         readonly processId: ProcessId,
     ) {
         this.taskIdentifier = this.constructor.name;
-     }
+    }
 
     encode(): BuyPixleProcessState {
         return {
@@ -34,6 +35,10 @@ export class BuyPixleProcess implements Process, Procedural {
     }
 
     runOnTick(): void {
+        if (Enviroment.world !== 'persistent world') {
+            console.log("Error can not generate Pixel on not persistent world");
+            return;
+        }
         if (Game.cpu.bucket < 10000) {
             return;
         }

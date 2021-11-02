@@ -265,10 +265,25 @@ export class HiveOS {
     }
 
     private runProceduralProcesses(): void {
-       const runningProcessInfo =- this.processStore.list()
+       const runningProcessInfo = this.processStore.list()
        .filter(processInfo => this.processStore.isRunning(processInfo.process.processId))
        .sort((a, b) => {
            return b.executionPriority - a.executionPriority;
+       });
+
+       runningProcessInfo.forEach(processInfo => {
+           ErrorMapper.wrapLoop(() => {
+               if (!processInfo.process.runBeforeTick) {
+                   return;
+               }
+               processInfo.process.runBeforeTick();
+           }, `Procedural process ${processInfo.process.processId} runBeforeTick()`);
+       })
+
+       runningProcessInfo.forEach(processInfo => {
+           ErrorMapper.wrapLoop(() => {
+                processInfo.process.runOnTick();
+           }, `Procedural process ${processInfo.process.processId} runOnTick()`);
        })
     }
 

@@ -25,6 +25,7 @@ declare global {
 
     interface Procedural {
         runOnTick(): void;
+        runBeforeTick?(): void;
     }
 
     type ProcessTypeIdentifier = keyof ProcessTypes;
@@ -52,7 +53,7 @@ export function decodeProcessFrom(state: ProcessState): Process | undefined {
     let decoded: Process | undefined;
     ErrorMapper.wrapLoop(() => {
         const maker = (new ProcessTypes())[state.t];
-        if(!maker) {
+        if (!maker) {
             return;
         }
         decoded = maker(state);

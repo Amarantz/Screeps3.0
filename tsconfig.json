@@ -1,9 +1,12 @@
 {
   "compilerOptions": {
-    "module": "esnext",
-    "lib": ["esnext"],
-    "target": "es2017",
-    "moduleResolution": "Node",
+    "module": "es2015",
+    "target": "es6",
+    "lib": [
+      "ES2020",
+      "ES2019.Array"
+    ],
+    "moduleResolution": "node",
     "outDir": "dist",
     "baseUrl": "src/",
     "sourceMap": true,

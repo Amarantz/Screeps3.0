@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unsafe-call */
+import "ts-polyfill/lib/es2019-array"
 import sandbox from "sandbox";
 import ErrorMapper from "utils/ErrorMapper";
 import profiler from 'screeps-profiler';

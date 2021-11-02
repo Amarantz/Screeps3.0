@@ -38,8 +38,6 @@ export class Initialize {
         if (Memory.stats.cpu.usage.length > 20) {
             Memory.stats.cpu.usage = []
         }
-
-        Game.io = standardInput;
     }
 
     static run(): void {
@@ -99,5 +97,7 @@ export class Initialize {
         if (Game.time % ticks === 0) {
             console.log(`Cpu usage: ${usage} Avg: ${avg} Bucket: ${bucket} at Tick: ${anyColoredText(Game.time.toString(), '#9524')}`);
         }
+
+        Game.io = standardInput;
     }
 }
