@@ -70,15 +70,15 @@ export default function () {
         creepSpawn(spawn, roleOptions.hauler)
     }
 
-    if ( harvesters > 1 && upgraders < 2 && spawn.spawning == null) {
+    if (harvesters > 1 && upgraders < 2 && spawn.spawning == null) {
         creepSpawn(spawn, roleOptions.upgrader)
     }
 
-    if ( harvesters > 1 && builders < 1 && spawn.spawning == null && spawn.room.find(FIND_CONSTRUCTION_SITES).length > 0) {
+    if (harvesters > 1 && builders < 1 && spawn.spawning == null && spawn.room.find(FIND_CONSTRUCTION_SITES).length > 0) {
         creepSpawn(spawn, roleOptions.builder)
     }
 
-    if(Game.rooms['E15S38'].storage && filler < 2 && spawn.spawning === null) {
+    if (Game.rooms['E12S47'].storage && filler < 2 && spawn.spawning === null) {
         creepSpawn(spawn, roleOptions.filler);
     }
 
