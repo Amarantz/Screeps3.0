@@ -22,7 +22,7 @@ export default function () {
     let filler = 0;
 
     if (Object.values(Game.creeps).filter(creep => creep.memory.role === 'harvester' && !creep.memory.t).length) {
-        const room = Game.rooms['E15S38'];
+        const room = Game.rooms['E12S47'];
         const sources = room.find(FIND_SOURCES);
         sources.forEach(source => roleHarvester.assign(source));
     }
@@ -74,7 +74,7 @@ export default function () {
         creepSpawn(spawn, roleOptions.upgrader)
     }
 
-    if ( harvesters > 1 && builders < 2 && spawn.spawning == null && spawn.room.find(FIND_CONSTRUCTION_SITES).length > 0) {
+    if ( harvesters > 1 && builders < 1 && spawn.spawning == null && spawn.room.find(FIND_CONSTRUCTION_SITES).length > 0) {
         creepSpawn(spawn, roleOptions.builder)
     }
 

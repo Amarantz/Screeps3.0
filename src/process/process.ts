@@ -57,6 +57,6 @@ export function decodeProcessFrom(state: ProcessState): Process | undefined {
             return;
         }
         decoded = maker(state);
-    }, `decodedProcessFrom(), process type: ${state.t}`);
+    }, `decodedProcessFrom(), process type: ${state.t}`)();
     return decoded;
 }

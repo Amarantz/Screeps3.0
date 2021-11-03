@@ -277,13 +277,13 @@ export class HiveOS {
                    return;
                }
                processInfo.process.runBeforeTick();
-           }, `Procedural process ${processInfo.process.processId} runBeforeTick()`);
+           }, `Procedural process ${processInfo.process.processId} runBeforeTick()`)();
        })
 
        runningProcessInfo.forEach(processInfo => {
            ErrorMapper.wrapLoop(() => {
                 processInfo.process.runOnTick();
-           }, `Procedural process ${processInfo.process.processId} runOnTick()`);
+           }, `Procedural process ${processInfo.process.processId} runOnTick()`)();
        })
     }
 

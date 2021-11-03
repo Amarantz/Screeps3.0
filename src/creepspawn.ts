@@ -38,7 +38,7 @@ export const creepSpawn = (spawn: StructureSpawn, opts: creepSetupOptions) => {
 export const roleOptions: { [key: string]: creepSetupOptions } = {
     harvester: {
         body: [WORK, WORK, MOVE, CARRY],
-        maxRepeat: 3,
+        maxRepeat: 99,
         namePrefix: 'harvester',
         memory: {
             role: 'harvester'
@@ -46,7 +46,7 @@ export const roleOptions: { [key: string]: creepSetupOptions } = {
     },
     upgrader: {
         body: [WORK, MOVE, CARRY],
-        maxRepeat: 5,
+        maxRepeat: 99,
         namePrefix: 'upgrader',
         memory: {
             role: 'upgrader'
@@ -54,7 +54,7 @@ export const roleOptions: { [key: string]: creepSetupOptions } = {
     },
     hauler: {
         body: [MOVE, MOVE, CARRY, CARRY],
-        maxRepeat: 10,
+        maxRepeat: 99,
         namePrefix: 'hauler',
         memory: {
             role: 'hauler'
@@ -62,7 +62,7 @@ export const roleOptions: { [key: string]: creepSetupOptions } = {
     },
     filler: {
         body: [MOVE, MOVE, CARRY, CARRY],
-        maxRepeat: 10,
+        maxRepeat: 99,
         namePrefix: 'filler',
         memory: {
             role: 'filler'
@@ -70,7 +70,7 @@ export const roleOptions: { [key: string]: creepSetupOptions } = {
     },
     builder: {
         body: [WORK, MOVE, CARRY],
-        maxRepeat: 5,
+        maxRepeat: 99,
         namePrefix: 'builder',
         memory: {
             role: 'builder'
